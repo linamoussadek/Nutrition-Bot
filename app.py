@@ -598,4 +598,10 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
     )
 
 if __name__ == "__main__":
-    demo.queue().launch()
+    demo.queue(max_size=20).launch(
+        server_name="0.0.0.0",
+        share=False,
+        server_port=7860,
+        show_error=True,
+        debug=False
+    )

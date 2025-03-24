@@ -2,7 +2,7 @@
 tags:
 - gradio-theme
 title: amethyst
-colorFrom: black
+colorFrom: gray
 colorTo: green
 sdk: gradio
 sdk_version: 4.44.0
@@ -10,54 +10,58 @@ app_file: app.py
 pinned: false
 license: apache-2.0
 ---
-# 🥗 Nutrition Chatbot
+# Nutrition Assistant Chatbot
 
-A modern, user-friendly nutrition assistant built with Gradio. Get personalized nutrition advice, meal planning suggestions, and health tips in a beautiful green-themed interface.
+A multilingual nutrition assistant chatbot built with Gradio and OpenAI's GPT-3.5. The chatbot provides personalized nutrition advice, meal planning, and dietary recommendations based on user profiles.
 
 ## Features
 
-- 📋 Personalized meal planning and recipe suggestions
-- 🍎 Detailed nutritional information about foods
-- 🥑 Custom dietary recommendations
-- 💪 Health and exercise tips
-- 🌙 Beautiful dark mode support
-- 🎯 Personal nutrition goal tracking
+- 🌍 Multilingual support (English and French)
+- 👤 Personalized user profiles
+- 🥗 Meal planning and suggestions
+- 📊 Nutritional information and calculations
+- 💪 Exercise and diet tips
+- 🎯 Custom nutrition goals tracking
+- 🌙 Dark/Light mode toggle
+
+## Requirements
+
+- Python 3.8+
+- Gradio 4.44.0+
+- OpenAI API key
+- Other dependencies listed in requirements.txt
+
+## Environment Variables
+
+Create a `.env` file with:
+```
+OPENAI_API_KEY=your_api_key_here
+```
 
 ## Installation
 
-1. Clone the repository:
+1. Install dependencies:
 ```bash
-git clone https://github.com/linamoussadek/Nutrition-Chatbot.git
-cd Nutrition-Chatbot
+pip install -r requirements.txt
 ```
 
-2. Install the required dependencies:
-```bash
-pip install gradio
-```
+2. Set up your OpenAI API key in `.env`
 
-3. Run the application:
+3. Run the app:
 ```bash
 python app.py
 ```
 
-The application will be available at `http://localhost:7861`
-
 ## Usage
 
 1. Enter your personal information (name, age, weight, height)
-2. Select any dietary preferences
-3. Set your nutrition goals
-4. Use the chat interface to ask questions about nutrition
-5. Try the quick actions for common nutrition-related tasks
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+2. Select dietary preferences
+3. Set nutrition goals
+4. Use quick actions or chat with the bot for personalized advice
 
 ## License
 
-This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
+MIT License
 
 ## Acknowledgments
 
