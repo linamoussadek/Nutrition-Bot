@@ -1,0 +1,98 @@
+{
+    "en": {
+        "title": "Nutrition Assistant",
+        "welcome": "Welcome to your personal nutrition assistant! I can help you with:",
+        "features": {
+            "meal_planning": "Meal planning and recipe suggestions",
+            "nutrition_info": "Nutritional information about foods",
+            "dietary_recs": "Dietary recommendations",
+            "eating_tips": "Healthy eating tips"
+        },
+        "user_info": {
+            "name_label": "Your Name",
+            "name_info": "Let me personalize recommendations for you",
+            "name_placeholder": "John Smith",
+            "age_label": "Age",
+            "age_info": "Let me adjust recommendations based on your age group",
+            "weight_label": "Weight (kg)",
+            "weight_info": "Help me calculate your nutritional needs accurately",
+            "height_label": "Height (cm)",
+            "height_info": "I'll use this to determine your ideal caloric intake",
+            "dietary_prefs_label": "Dietary Preferences",
+            "dietary_prefs_info": "Select all that apply to receive tailored meal suggestions"
+        },
+        "quick_actions": {
+            "title": "Quick Actions",
+            "common_tasks": "Common Tasks",
+            "common_tasks_info": "Click any action to get started",
+            "nutrition_goals": "Nutrition Goals",
+            "nutrition_goals_info": "Set your personal targets:",
+            "actions": {
+                "meal_suggestions": "Get meal suggestions",
+                "daily_calories": "Calculate daily calories",
+                "food_nutrition": "Check food nutrition facts",
+                "exercise_tips": "Get exercise tips",
+                "weekly_menu": "Plan weekly menu"
+            }
+        },
+        "chat": {
+            "label": "Nutrition Chat",
+            "message_placeholder": "Ask me anything about nutrition...",
+            "send_button": "Send",
+            "clear_button": "Clear Chat",
+            "welcome_message": "Hi! I'm your nutrition assistant. How can I help you today?"
+        },
+        "theme": {
+            "toggle_dark": "Toggle Dark Mode"
+        },
+        "profile_update": "Profile updated for {}"
+    },
+    "fr": {
+        "title": "Assistant en Nutrition",
+        "welcome": "Bienvenue dans votre assistant nutritionnel personnel ! Je peux vous aider avec :",
+        "features": {
+            "meal_planning": "Planification des repas et suggestions de recettes",
+            "nutrition_info": "Informations nutritionnelles sur les aliments",
+            "dietary_recs": "Recommandations alimentaires",
+            "eating_tips": "Conseils pour une alimentation saine"
+        },
+        "user_info": {
+            "name_label": "Votre Nom",
+            "name_info": "Laissez-moi personnaliser les recommandations pour vous",
+            "name_placeholder": "Jean Dupont",
+            "age_label": "Âge",
+            "age_info": "Laissez-moi ajuster les recommandations selon votre groupe d'âge",
+            "weight_label": "Poids (kg)",
+            "weight_info": "Aidez-moi à calculer vos besoins nutritionnels précisément",
+            "height_label": "Taille (cm)",
+            "height_info": "Je vais utiliser cela pour déterminer votre apport calorique idéal",
+            "dietary_prefs_label": "Préférences Alimentaires",
+            "dietary_prefs_info": "Sélectionnez tout ce qui s'applique pour recevoir des suggestions de repas adaptées"
+        },
+        "quick_actions": {
+            "title": "Actions Rapides",
+            "common_tasks": "Tâches Courantes",
+            "common_tasks_info": "Cliquez sur une action pour commencer",
+            "nutrition_goals": "Objectifs Nutritionnels",
+            "nutrition_goals_info": "Définissez vos objectifs personnels :",
+            "actions": {
+                "meal_suggestions": "Obtenir des suggestions de repas",
+                "daily_calories": "Calculer les calories quotidiennes",
+                "food_nutrition": "Vérifier les informations nutritionnelles",
+                "exercise_tips": "Obtenir des conseils d'exercice",
+                "weekly_menu": "Planifier le menu hebdomadaire"
+            }
+        },
+        "chat": {
+            "label": "Chat Nutritionnel",
+            "message_placeholder": "Posez-moi une question sur la nutrition...",
+            "send_button": "Envoyer",
+            "clear_button": "Effacer le Chat",
+            "welcome_message": "Bonjour ! Je suis votre assistant nutritionnel. Comment puis-je vous aider aujourd'hui ?"
+        },
+        "theme": {
+            "toggle_dark": "Basculer le Mode Sombre"
+        },
+        "profile_update": "Profil mis à jour pour {}"
+    }
+} 

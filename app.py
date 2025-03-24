@@ -1,8 +1,9 @@
-import time
+import time 
 import os
+import json
 from dotenv import load_dotenv
 import openai
-from typing import Dict, List
+from typing import List
 import gradio as gr
 from gradio.themes.utils.theme_dropdown import create_theme_dropdown
 from gradio.themes import Base
@@ -14,6 +15,21 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 if not openai.api_key:
     raise ValueError("Please set the OPENAI_API_KEY environment variable")
+
+# Load translations
+with open('translations.json', 'r', encoding='utf-8') as f:
+    translations = json.load(f)
+
+# Initialize current language
+current_lang = "en"
+
+def get_text(key: str) -> str:
+    """Get translated text for a given key (dot-separated for nested keys)"""
+    keys = key.split('.')
+    value = translations[current_lang]
+    for k in keys:
+        value = value[k]
+    return value
 
 class NutritionBot:
     def __init__(self):
@@ -44,7 +60,6 @@ class NutritionBot:
     
     def update_user_data(self, name: str, age: int, weight: float, height: float, dietary_prefs: List[str], 
                         calories: int = None, protein: int = None, water: float = None):
-        """Update user profile data"""
         self.user_data = {
             "name": name,
             "age": age,
@@ -57,15 +72,10 @@ class NutritionBot:
             "water_target": water
         }
         
-        # Calculate additional health metrics
         bmr = self._calculate_bmr()
         tdee = self._calculate_tdee()
-        
-        # Generate personalized greeting and assessment
         greeting = f"👋 Hello {name}! "
         assessment = self._generate_health_assessment(bmr, tdee, calories, protein, water)
-        
-        # Update system prompt with detailed user context
         user_context = f"""
         User Profile:
         - Name: {name}
@@ -91,14 +101,12 @@ class NutritionBot:
         5. Practical meal suggestions that fit their calorie targets
         """
         
-        # Update conversation history with greeting and assessment
         self.conversation_history = [
             {"role": "system", "content": self.system_prompt + user_context},
             {"role": "assistant", "content": greeting + assessment}
         ]
 
     def _calculate_bmr(self) -> float:
-        """Calculate Basal Metabolic Rate using Mifflin-St Jeor Equation"""
         if not all([self.user_data.get('weight'), self.user_data.get('height'), self.user_data.get('age')]):
             return 0
         weight = self.user_data['weight']
@@ -107,12 +115,10 @@ class NutritionBot:
         return (10 * weight) + (6.25 * height) - (5 * age) + 5
 
     def _calculate_tdee(self) -> float:
-        """Calculate Total Daily Energy Expenditure (using moderate activity factor)"""
         bmr = self._calculate_bmr()
-        return bmr * 1.55  # Moderate activity factor
+        return bmr * 1.55
 
     def _get_bmi_category(self) -> str:
-        """Get BMI category based on calculated BMI"""
         bmi = self.user_data.get('bmi')
         if not bmi:
             return "Not available"
@@ -126,178 +132,116 @@ class NutritionBot:
             return "Obese"
 
     def _calculate_protein_needs(self) -> float:
-        """Calculate protein needs based on weight and activity level"""
         if not self.user_data.get('weight'):
             return 0
-        weight = self.user_data['weight']
-        return weight * 1.6  # Moderate activity level multiplier
+        return self.user_data['weight'] * 1.6
 
     def _calculate_water_needs(self) -> float:
-        """Calculate daily water needs based on weight"""
         if not self.user_data.get('weight'):
             return 0
-        weight = self.user_data['weight']
-        return weight * 0.033  # 33ml per kg of body weight
+        return self.user_data['weight'] * 0.033
 
     def _generate_health_assessment(self, bmr: float, tdee: float, calories: int, protein: int, water: float) -> str:
-        """Generate a personalized health assessment based on user's metrics"""
         assessment_parts = []
-        
-        # BMI Assessment
         bmi_category = self._get_bmi_category()
         if bmi_category != "Not available":
             assessment_parts.append(f"Based on your BMI of {self.user_data['bmi']}, you are in the {bmi_category.lower()} category.")
-        
-        # Calorie Assessment
         if calories:
             calorie_diff = abs(calories - tdee)
             calorie_diff_percent = (calorie_diff / tdee) * 100
-            
             if calorie_diff_percent > 30:
                 assessment_parts.append(
-                    f"⚠️ Your calorie target of {calories}kcal is significantly different from your estimated daily needs ({tdee:.0f}kcal). "
-                    "This might be unsustainable in the long term. Consider adjusting your target."
+                    f"⚠️ Your calorie target of {calories}kcal is significantly different from your estimated daily needs ({tdee:.0f}kcal). This might be unsustainable in the long term. Consider adjusting your target."
                 )
             elif calorie_diff_percent > 15:
                 assessment_parts.append(
-                    f"Your calorie target of {calories}kcal is moderately different from your estimated daily needs ({tdee:.0f}kcal). "
-                    "Make sure this aligns with your health goals."
+                    f"Your calorie target of {calories}kcal is moderately different from your estimated daily needs ({tdee:.0f}kcal). Make sure this aligns with your health goals."
                 )
             else:
                 assessment_parts.append(
                     f"Your calorie target of {calories}kcal is well-aligned with your estimated daily needs ({tdee:.0f}kcal)."
                 )
-        
-        # Protein Assessment
         if protein:
             protein_needs = self._calculate_protein_needs()
             protein_diff = abs(protein - protein_needs)
             protein_diff_percent = (protein_diff / protein_needs) * 100
-            
             if protein_diff_percent > 50:
                 assessment_parts.append(
-                    f"⚠️ Your protein target of {protein}g is significantly different from recommended needs ({protein_needs:.0f}g). "
-                    "This might not be optimal for your health goals."
+                    f"⚠️ Your protein target of {protein}g is significantly different from recommended needs ({protein_needs:.0f}g). This might not be optimal for your health goals."
                 )
             elif protein_diff_percent > 25:
                 assessment_parts.append(
-                    f"Your protein target of {protein}g is moderately different from recommended needs ({protein_needs:.0f}g). "
-                    "Consider adjusting based on your activity level."
+                    f"Your protein target of {protein}g is moderately different from recommended needs ({protein_needs:.0f}g). Consider adjusting based on your activity level."
                 )
             else:
                 assessment_parts.append(
                     f"Your protein target of {protein}g aligns well with recommended needs ({protein_needs:.0f}g)."
                 )
-        
-        # Water Assessment
         if water:
             water_needs = self._calculate_water_needs()
             water_diff = abs(water - water_needs)
             water_diff_percent = (water_diff / water_needs) * 100
-            
             if water_diff_percent > 30:
                 assessment_parts.append(
-                    f"⚠️ Your water intake target of {water}L is significantly different from recommended needs ({water_needs:.1f}L). "
-                    "This might affect your hydration status."
+                    f"⚠️ Your water intake target of {water}L is significantly different from recommended needs ({water_needs:.1f}L). This might affect your hydration status."
                 )
             elif water_diff_percent > 15:
                 assessment_parts.append(
-                    f"Your water intake target of {water}L is moderately different from recommended needs ({water_needs:.1f}L). "
-                    "Consider adjusting based on your activity level and climate."
+                    f"Your water intake target of {water}L is moderately different from recommended needs ({water_needs:.1f}L). Consider adjusting based on your activity level and climate."
                 )
             else:
                 assessment_parts.append(
                     f"Your water intake target of {water}L aligns well with recommended needs ({water_needs:.1f}L)."
                 )
-        
-        # Dietary Preferences Assessment
         if self.user_data.get('dietary_preferences'):
             prefs = self.user_data['dietary_preferences']
             if len(prefs) > 3:
                 assessment_parts.append(
-                    "⚠️ You have multiple dietary restrictions. Make sure you're getting all necessary nutrients. "
-                    "Consider consulting a nutritionist for a detailed meal plan."
+                    "⚠️ You have multiple dietary restrictions. Make sure you're getting all necessary nutrients. Consider consulting a nutritionist for a detailed meal plan."
                 )
             else:
                 assessment_parts.append(
-                    f"Your dietary preferences ({', '.join(prefs)}) have been noted. "
-                    "I'll provide recommendations that align with these preferences."
+                    f"Your dietary preferences ({', '.join(prefs)}) have been noted. I'll provide recommendations that align with these preferences."
                 )
-        
-        # Combine all assessments
         if assessment_parts:
             return "\n\n".join(assessment_parts)
         return "I've noted your information and will provide personalized nutrition advice based on your profile."
 
     def is_nutrition_related(self, query: str) -> bool:
-        """Check if the query is nutrition-related"""
         nutrition_keywords = [
-            # Food and meals
             'food', 'diet', 'nutrition', 'eat', 'meal', 'breakfast', 'lunch', 'dinner', 'snack',
             'recipe', 'cooking', 'cook', 'bake', 'baking', 'kitchen', 'restaurant', 'cafe',
-            
-            # Nutrients and components
             'calorie', 'protein', 'carb', 'carbohydrate', 'fat', 'fiber', 'fibre', 'vitamin',
             'mineral', 'nutrient', 'supplement', 'omega', 'antioxidant', 'mineral',
-            
-            # Food groups
             'vegetable', 'fruit', 'meat', 'fish', 'seafood', 'dairy', 'grain', 'cereal',
             'legume', 'bean', 'nut', 'seed', 'spice', 'herb', 'oil', 'sauce', 'dressing',
-            
-            # Health and wellness
             'healthy', 'health', 'wellness', 'weight', 'fitness', 'exercise', 'workout',
             'metabolism', 'digestion', 'energy', 'tired', 'fatigue', 'sleep', 'stress',
-            
-            # Dietary preferences and restrictions
             'vegetarian', 'vegan', 'keto', 'paleo', 'gluten', 'dairy', 'allergy',
             'intolerance', 'organic', 'natural', 'processed', 'whole food',
-            
-            # Portions and measurements
-            'portion', 'serving', 'size', 'amount', 'quantity', 'measure', 'cup', 'gram',
-            'ounce', 'pound', 'kilogram', 'liter', 'milliliter',
-            
-            # Common nutrition questions
             'should i', 'can i', 'what should', 'how much', 'how many', 'recommend',
             'suggestion', 'advice', 'help', 'guide', 'plan', 'schedule', 'routine',
-            
-            # Health conditions
             'diabetes', 'heart', 'blood pressure', 'cholesterol', 'digestive',
             'gut', 'immune', 'bone', 'muscle', 'joint', 'skin', 'hair'
         ]
-        
-        # Convert query to lowercase for case-insensitive matching
         query_lower = query.lower()
-        
-        # Check for direct keyword matches
         if any(keyword in query_lower for keyword in nutrition_keywords):
             return True
-            
-        # Check for question patterns
         question_patterns = [
             'what', 'how', 'why', 'when', 'where', 'which', 'should', 'can', 'could',
             'would', 'do', 'does', 'is', 'are', 'was', 'were', 'have', 'has', 'had'
         ]
-        
-        # If the query starts with a question word, it's likely a nutrition question
         if any(query_lower.startswith(pattern) for pattern in question_patterns):
             return True
-            
-        # Check for health-related adjectives
         health_adjectives = ['healthy', 'unhealthy', 'good', 'bad', 'better', 'best', 'worse', 'worst']
         if any(adj in query_lower for adj in health_adjectives):
             return True
-            
         return False
 
     async def get_response(self, message: str) -> str:
-        """Get response from ChatGPT with nutrition focus"""
         if not self.is_nutrition_related(message):
             return "I'm your nutrition assistant, so I can only help with questions about food, diet, and nutrition. Could you please ask me something related to nutrition or healthy eating?"
-
-        # Generate personalized greeting with user info
         greeting_parts = []
-        
-        # Add user information in a natural way
         if self.user_data.get('height') or self.user_data.get('weight') or self.user_data.get('age'):
             greeting_parts.append("I see that")
             info_parts = []
@@ -308,58 +252,42 @@ class NutritionBot:
             if self.user_data.get('age'):
                 info_parts.append(f"you're {self.user_data['age']} years old")
             greeting_parts.append(", ".join(info_parts))
-        
         if self.user_data.get('dietary_preferences'):
             greeting_parts.append(f"and you follow a {', '.join(self.user_data['dietary_preferences'])} diet")
-        
         greeting = " ".join(greeting_parts) + ".\n\n"
-
-        # Add user message to history
         self.conversation_history.append({"role": "user", "content": message})
-        
         max_retries = 3
-        retry_delay = 1  # seconds
-        
+        retry_delay = 1
         for attempt in range(max_retries):
             try:
-                # Get response from ChatGPT with optimized parameters
                 response = openai.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=self.conversation_history,
-                    temperature=0.7,  # Balanced between creativity and consistency
-                    max_tokens=500,   # Limit response length
-                    top_p=0.9,        # Nucleus sampling for better quality
-                    frequency_penalty=0.3,  # Reduce repetition
-                    presence_penalty=0.3,   # Encourage new topics
-                    timeout=30  # 30 second timeout
+                    temperature=0.7,
+                    max_tokens=500,
+                    top_p=0.9,
+                    frequency_penalty=0.3,
+                    presence_penalty=0.3,
+                    timeout=30
                 )
-                
-                # Extract and store response
                 bot_response = response.choices[0].message.content
                 self.conversation_history.append({"role": "assistant", "content": bot_response})
-                
-                # Combine greeting with response
                 return greeting + bot_response
-                
             except openai.RateLimitError:
                 if attempt < max_retries - 1:
-                    await asyncio.sleep(retry_delay * (attempt + 1))  # Exponential backoff
+                    await asyncio.sleep(retry_delay * (attempt + 1))
                     continue
                 return "I'm experiencing high demand right now. Please try again in a few moments."
-            
             except openai.APIError as e:
                 if attempt < max_retries - 1:
                     await asyncio.sleep(retry_delay * (attempt + 1))
                     continue
                 return f"I apologize, but I encountered an API error. Please try again later. Error: {str(e)}"
-            
             except Exception as e:
                 return f"I apologize, but I encountered an unexpected error. Please try again. Error: {str(e)}"
 
-# Initialize the nutrition bot
 nutrition_bot = NutritionBot()
 
-# Create a custom theme class
 class AmethystTheme(Base):
     def __init__(self):
         super().__init__(
@@ -368,31 +296,27 @@ class AmethystTheme(Base):
             neutral_hue="gray",         
         )
         self.name = "nutrition_theme"
-        
-        # Light mode colors
-        self.color_accent = "#4CAF50"  # Fresh green
-        self.color_accent_soft = "rgba(76, 175, 80, 0.2)"  # Soft green
+        self.color_accent = "#4CAF50"
+        self.color_accent_soft = "rgba(76, 175, 80, 0.2)"
         self.background_fill_primary = "#FFFFFF"
-        self.background_fill_secondary = "#F1F8E9"  # Very light green
-        self.border_color_primary = "#81C784"  # Medium green
-        self.block_title_text_color = "#2E7D32"  # Dark green
+        self.background_fill_secondary = "#F1F8E9"
+        self.border_color_primary = "#81C784"
+        self.block_title_text_color = "#2E7D32"
         self.block_border_color = "#81C784"
         self.button_primary_background_fill = "#4CAF50"
         self.button_primary_background_fill_hover = "#43A047"
         self.button_secondary_background_fill = "#F1F8E9"
         self.button_secondary_border_color = "#81C784"
         self.button_secondary_text_color = "#2E7D32"
-        
-        # Dark mode colors
         self.dark_mode_colors = {
-            "background_fill_primary": "#1B2A1B",  # Dark forest green
-            "background_fill_secondary": "#243024",  # Slightly lighter forest green
+            "background_fill_primary": "#1B2A1B",
+            "background_fill_secondary": "#243024",
             "block_background_fill": "#1B2A1B",
             "block_border_color": "#4CAF50",
             "block_label_text_color": "#81C784",
-            "block_title_text_color": "#A5D6A7",  # Light green for contrast
+            "block_title_text_color": "#A5D6A7",
             "body_background_fill": "linear-gradient(135deg, #162316 0%, #1B2A1B 100%)",
-            "body_text_color": "#E8F5E9",  # Very light green text
+            "body_text_color": "#E8F5E9",
             "button_primary_background_fill": "#4CAF50",
             "button_primary_text_color": "#FFFFFF",
             "button_secondary_background_fill": "#243024",
@@ -408,21 +332,15 @@ class AmethystTheme(Base):
             "slider_color": "#4CAF50",
             "block_label_background_fill": "rgba(76, 175, 80, 0.1)"
         }
-        
-        # Add some spacing and sizing configurations
-        self.spacing_md = "12px"  # Increased from 6px
-        self.spacing_lg = "16px"  # Increased from 8px
-        self.spacing_xl = "20px"  # Increased from 10px
-        self.spacing_xxl = "32px" # Increased from 16px
-        
-        self.radius_lg = "12px"   # Increased from 8px
+        self.spacing_md = "12px"
+        self.spacing_lg = "16px"
+        self.spacing_xl = "20px"
+        self.spacing_xxl = "32px"
+        self.radius_lg = "12px"
         self.shadow_drop = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)"
-        
-        # Increase text sizes slightly
-        self.text_md = "15px"     # Increased from 14px
-        self.text_lg = "18px"     # Increased from 16px
-        self.text_xl = "24px"     # Increased from 22px
-        
+        self.text_md = "15px"
+        self.text_lg = "18px"
+        self.text_xl = "24px"
         for key, value in self.dark_mode_colors.items():
             setattr(self, key + "_dark", value)
 
@@ -476,111 +394,113 @@ css = """
 }
 """
 
-dropdown, js = create_theme_dropdown()
-
-# Use our custom theme
 with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
     with gr.Row(equal_height=True):
-        with gr.Column(scale=10):
-            with gr.Column(scale=1):
-                toggle_dark = gr.Button("🌙 Toggle Dark Mode", size="sm")
-            with gr.Column(elem_classes="nutrition-header"):
-                gr.Markdown(
-                    """
-                    # 🥗 Nutrition Assistant
-                    Welcome to your personal nutrition assistant! I can help you with:
-                    - 📋 Meal planning and recipe suggestions
-                    - 🍎 Nutritional information about foods
-                    - 🥑 Dietary recommendations
-                    - 💪 Healthy eating tips
-                    """
-                )
-        
-
+        with gr.Column(scale=1):
+            toggle_dark = gr.Button(get_text("theme.toggle_dark"), size="sm")
+        with gr.Column(scale=1):
+            language = gr.Dropdown(
+                choices=["en", "fr"],
+                value="en",
+                label="Language",
+                info="Select your preferred language"
+            )
+            lang_state = gr.State("en")  # Add language state
+    with gr.Row(equal_height=True):
+        with gr.Column(scale=10, elem_classes="nutrition-header"):
+            header_md = gr.Markdown(
+                f"""
+                # 🥗 {get_text("title")}
+                {get_text("welcome")}
+                - 📋 {get_text("features.meal_planning")}
+                - 🍎 {get_text("features.nutrition_info")}
+                - 🥑 {get_text("features.dietary_recs")}
+                - 💪 {get_text("features.eating_tips")}
+                """
+            )
+    
     with gr.Column(elem_classes="user-info"):
         with gr.Row():
             with gr.Column(elem_classes="equal-width"):
                 name = gr.Textbox(
-                    label="👤 Your Name",
-                    info="Let me personalize recommendations for you",
-                    placeholder="John Smith",
+                    label=f"👤 {get_text('user_info.name_label')}",
+                    info=get_text("user_info.name_info"),
+                    placeholder=get_text("user_info.name_placeholder"),
                     value="",
                     interactive=True,
                 )
             with gr.Column(elem_classes="equal-width"):
                 age = gr.Number(
-                    label="🎂 Age",
-                    info="Let me adjust recommendations based on your age group",
+                    label=f"🎂 {get_text('user_info.age_label')}",
+                    info=get_text("user_info.age_info"),
                     value=25,
                     minimum=0,
                     maximum=120
                 )
             with gr.Column(elem_classes="equal-width"):
                 weight = gr.Number(
-                    label="⚖️ Weight (kg)",
-                    info="Help me calculate your nutritional needs accurately",
+                    label=f"⚖️ {get_text('user_info.weight_label')}",
+                    info=get_text("user_info.weight_info"),
                     value=70,
                     minimum=20,
                     maximum=300
                 )
             with gr.Column(elem_classes="equal-width"):
                 height = gr.Number(
-                    label="📏 Height (cm)",
-                    info="I'll use this to determine your ideal caloric intake",
+                    label=f"📏 {get_text('user_info.height_label')}",
+                    info=get_text("user_info.height_info"),
                     value=170,
                     minimum=100,
                     maximum=250
                 )
-        
         with gr.Row():
             dietary_prefs = gr.CheckboxGroup(
                 ["🥬 Vegetarian", "🌱 Vegan", "🌾 Gluten-Free", "🥛 Dairy-Free", "🥑 Keto", "🍖 Paleo"],
-                label="Dietary Preferences",
-                info="Select all that apply to receive tailored meal suggestions"
+                label=get_text("user_info.dietary_prefs_label"),
+                info=get_text("user_info.dietary_prefs_info")
             )
-
+    
     with gr.Row(equal_height=True):
         with gr.Column(variant="panel", scale=1):
             with gr.Column(elem_classes="quick-actions"):
-                gr.Markdown("### ⚡ Quick Actions")
+                quick_actions_md = gr.Markdown(f"### ⚡ {get_text('quick_actions.title')}")
                 quick_actions = gr.Radio(
                     [
-                        "🍽️ Get meal suggestions",
-                        "📊 Calculate daily calories",
-                        "🔍 Check food nutrition facts",
-                        "🏃‍♂️ Get exercise tips",
-                        "📅 Plan weekly menu"
+                        "🍽️ " + get_text("quick_actions.actions.meal_suggestions"),
+                        "📊 " + get_text("quick_actions.actions.daily_calories"),
+                        "🔍 " + get_text("quick_actions.actions.food_nutrition"),
+                        "🏃‍♂️ " + get_text("quick_actions.actions.exercise_tips"),
+                        "📅 " + get_text("quick_actions.actions.weekly_menu")
                     ],
-                    label="Common Tasks",
-                    info="Click any action to get started"
+                    label=get_text("quick_actions.common_tasks"),
+                    info=get_text("quick_actions.common_tasks_info")
                 )
-                
-                with gr.Accordion("🎯 Nutrition Goals", open=False):
-                    gr.Markdown("Set your personal targets:")
+                nutrition_goals_acc = gr.Accordion(get_text("quick_actions.nutrition_goals"), open=False)
+                with nutrition_goals_acc:
+                    gr.Markdown(get_text("quick_actions.nutrition_goals_info"))
                     calories = gr.Number(label="🔥 Daily Calorie Target", value=2000)
                     protein = gr.Number(label="🥩 Protein Goal (g)", value=150)
                     water = gr.Number(label="💧 Water Intake Goal (L)", value=2.5)
         with gr.Column(variant="panel", scale=2):
             with gr.Column(elem_classes="chat-container"):
                 chatbot = gr.Chatbot(
-                    [{"role": "assistant", "content": "👋 Hi! I'm your nutrition assistant. How can I help you today?"}],
-                    label="Nutrition Chat",
+                    [{"role": "assistant", "content": get_text("chat.welcome_message")}],
+                    label=get_text("chat.label"),
                     height=500,
                     type="messages"
                 )
                 with gr.Row():
                     msg = gr.Textbox(
-                        label="Your Message",
-                        placeholder="Ask me anything about nutrition...",
+                        label=get_text("chat.label"),
+                        placeholder=get_text("chat.message_placeholder"),
                         show_label=False,
                         container=False,
                         scale=7
                     )
-                    submit_btn = gr.Button("📤 Send", variant="primary", scale=2)
+                    submit_btn = gr.Button("📤 " + get_text("chat.send_button"), variant="primary", scale=2)
                 with gr.Row():
-                    clear_btn = gr.Button("🗑️ Clear Chat", variant="secondary", size="sm", scale=1)
+                    clear_btn = gr.Button("🗑️ " + get_text("chat.clear_button"), variant="secondary", size="sm", scale=1)
 
-    # Update user profile when any input changes
     def update_profile(*args):
         nutrition_bot.update_user_data(*args)
         return f"Profile updated for {args[0]}"
@@ -593,29 +513,89 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
             outputs=gr.Textbox(visible=False)
         )
 
-    # Quick action handler
     def handle_quick_action(action: str) -> str:
         action_prompts = {
-            "🍽️ Get meal suggestions": "Can you suggest some healthy meals that fit my dietary preferences and calorie goals?",
-            "📊 Calculate daily calories": "Based on my age, weight, and activity level, how many calories should I consume daily?",
-            "🔍 Check food nutrition facts": "Can you tell me about the nutritional content of common foods in my diet?",
-            "🏃‍♂️ Get exercise tips": "What types of exercise would complement my nutrition goals?",
-            "📅 Plan weekly menu": "Can you help me create a weekly meal plan that meets my nutritional goals?"
+            "🍽️ " + get_text("quick_actions.actions.meal_suggestions"): "Can you suggest some healthy meals that fit my dietary preferences and calorie goals?",
+            "📊 " + get_text("quick_actions.actions.daily_calories"): "Based on my age, weight, and activity level, how many calories should I consume daily?",
+            "🔍 " + get_text("quick_actions.actions.food_nutrition"): "Can you tell me about the nutritional content of common foods in my diet?",
+            "🏃‍♂️ " + get_text("quick_actions.actions.exercise_tips"): "What types of exercise would complement my nutrition goals?",
+            "📅 " + get_text("quick_actions.actions.weekly_menu"): "Can you help me create a weekly meal plan that meets my nutritional goals?"
         }
         return action_prompts.get(action, "")
 
-    # Enhanced response function using ChatGPT
     async def respond(message, history):
         bot_response = await nutrition_bot.get_response(message)
-        return history + [{"role": "user", "content": message}, 
-                         {"role": "assistant", "content": bot_response}]
+        return history + [{"role": "user", "content": message}, {"role": "assistant", "content": bot_response}]
 
-    # Event handlers
     msg.submit(respond, [msg, chatbot], [chatbot]).then(lambda: "", None, [msg])
     submit_btn.click(respond, [msg, chatbot], [chatbot]).then(lambda: "", None, [msg])
     clear_btn.click(lambda: None, None, chatbot)
     quick_actions.change(handle_quick_action, quick_actions, msg)
     toggle_dark.click(None, js="() => {document.body.classList.toggle('dark');}")
+
+    # Language change callback: update only updateable properties
+    def update_language(lang: str):
+        global current_lang
+        current_lang = lang
+
+        # Create the quick actions choices list
+        quick_actions_choices = [
+            "🍽️ " + get_text("quick_actions.actions.meal_suggestions"),
+            "📊 " + get_text("quick_actions.actions.daily_calories"),
+            "🔍 " + get_text("quick_actions.actions.food_nutrition"),
+            "🏃‍♂️ " + get_text("quick_actions.actions.exercise_tips"),
+            "📅 " + get_text("quick_actions.actions.weekly_menu")
+        ]
+
+        return (
+            f"👤 {get_text('user_info.name_label')}",  # name label
+            get_text("user_info.name_info"),            # name info
+            get_text("user_info.name_placeholder"),     # name placeholder
+            f"🎂 {get_text('user_info.age_label')}",    # age label
+            get_text("user_info.age_info"),             # age info
+            f"⚖️ {get_text('user_info.weight_label')}", # weight label
+            get_text("user_info.weight_info"),          # weight info
+            f"📏 {get_text('user_info.height_label')}", # height label
+            get_text("user_info.height_info"),          # height info
+            get_text("user_info.dietary_prefs_label"),  # dietary prefs label
+            get_text("user_info.dietary_prefs_info"),   # dietary prefs info
+            gr.update(choices=quick_actions_choices, label=get_text("quick_actions.common_tasks"), info=get_text("quick_actions.common_tasks_info")),  # quick actions radio
+            gr.update(label=get_text("quick_actions.nutrition_goals")),  # nutrition goals accordion
+            gr.update(value=[{"role": "assistant", "content": get_text("chat.welcome_message")}]),  # chatbot
+            get_text("chat.message_placeholder"),        # message placeholder
+            "📤 " + get_text("chat.send_button"),        # send button
+            "🗑️ " + get_text("chat.clear_button"),       # clear button
+            get_text("theme.toggle_dark")                # toggle dark button
+        )
+
+    language.change(
+        update_language,
+        inputs=[language],
+        outputs=[
+            name,                    # name textbox
+            name,                    # name info
+            name,                    # name placeholder
+            age,                     # age number
+            age,                     # age info
+            weight,                  # weight number
+            weight,                  # weight info
+            height,                  # height number
+            height,                  # height info
+            dietary_prefs,           # dietary prefs checkbox group
+            dietary_prefs,           # dietary prefs info
+            quick_actions,           # quick actions radio
+            nutrition_goals_acc,     # nutrition goals accordion
+            chatbot,                 # chatbot
+            msg,                     # message textbox
+            submit_btn,              # submit button
+            clear_btn,               # clear button
+            toggle_dark              # toggle dark button
+        ]
+    ).then(
+        lambda lang: lang,
+        inputs=[language],
+        outputs=[lang_state]
+    )
 
 if __name__ == "__main__":
     demo.queue().launch()
