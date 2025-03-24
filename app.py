@@ -374,6 +374,12 @@ css = """
     height: 32px;
     min-width: auto;
     cursor: pointer;
+    background-color: #2E7D32 !important;
+    color: white !important;
+    border: 1px solid #1B5E20 !important;
+}
+.controls-column .gr-button:hover {
+    background-color: #1B5E20 !important;
 }
 .controls-column .gr-dropdown {
     margin: 0;
@@ -381,6 +387,14 @@ css = """
 }
 .dark .controls-column .gr-dropdown {
     background: #243024;
+}
+.dark .controls-column .gr-button {
+    background-color: #81C784 !important;
+    color: #1B2A1B !important;
+    border: 1px solid #A5D6A7 !important;
+}
+.dark .controls-column .gr-button:hover {
+    background-color: #A5D6A7 !important;
 }
 .controls-column select {
     cursor: pointer;
@@ -502,7 +516,14 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
                 )
         with gr.Row():
             dietary_prefs = gr.CheckboxGroup(
-                ["🥬 Vegetarian", "🌱 Vegan", "🌾 Gluten-Free", "🥛 Dairy-Free", "🥑 Keto", "🍖 Paleo"],
+                choices=[
+                    "🥬 " + get_text("dietary_prefs.vegetarian"),
+                    "🌱 " + get_text("dietary_prefs.vegan"),
+                    "🌾 " + get_text("dietary_prefs.gluten_free"),
+                    "🥛 " + get_text("dietary_prefs.dairy_free"),
+                    "🥑 " + get_text("dietary_prefs.keto"),
+                    "🍖 " + get_text("dietary_prefs.paleo")
+                ],
                 label=get_text("user_info.dietary_prefs_label"),
                 info=get_text("user_info.dietary_prefs_info")
             )
@@ -525,9 +546,9 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
                 nutrition_goals_acc = gr.Accordion(get_text("quick_actions.nutrition_goals"), open=False)
                 with nutrition_goals_acc:
                     gr.Markdown(get_text("quick_actions.nutrition_goals_info"))
-                    calories = gr.Number(label="🔥 Daily Calorie Target", value=2000)
-                    protein = gr.Number(label="🥩 Protein Goal (g)", value=150)
-                    water = gr.Number(label="💧 Water Intake Goal (L)", value=2.5)
+                    calories = gr.Number(label=f"🔥 {get_text('nutrition_goals.calories_label')}", value=2000)
+                    protein = gr.Number(label=f"🥩 {get_text('nutrition_goals.protein_label')}", value=150)
+                    water = gr.Number(label=f"💧 {get_text('nutrition_goals.water_label')}", value=2.5)
         with gr.Column(variant="panel", scale=2):
             with gr.Column(elem_classes="chat-container"):
                 chatbot = gr.Chatbot(
@@ -594,49 +615,65 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
             "📅 " + get_text("quick_actions.actions.weekly_menu")
         ]
 
+        # Create header content
+        header_content = f"""
+        # 🥗 {get_text("title")}
+        {get_text("welcome")}
+        - 📋 {get_text("features.meal_planning")}
+        - 🍎 {get_text("features.nutrition_info")}
+        - 🥑 {get_text("features.dietary_recs")}
+        - 💪 {get_text("features.eating_tips")}
+        """
+
+        # Create quick actions title
+        quick_actions_title = f"### ⚡ {get_text('quick_actions.title')}"
+
+        # Create nutrition goals info
+        nutrition_goals_info = get_text("quick_actions.nutrition_goals_info")
+
         return (
-            f"👤 {get_text('user_info.name_label')}",  # name label
-            get_text("user_info.name_info"),            # name info
-            get_text("user_info.name_placeholder"),     # name placeholder
-            f"🎂 {get_text('user_info.age_label')}",    # age label
-            get_text("user_info.age_info"),             # age info
-            f"⚖️ {get_text('user_info.weight_label')}", # weight label
-            get_text("user_info.weight_info"),          # weight info
-            f"📏 {get_text('user_info.height_label')}", # height label
-            get_text("user_info.height_info"),          # height info
-            get_text("user_info.dietary_prefs_label"),  # dietary prefs label
-            get_text("user_info.dietary_prefs_info"),   # dietary prefs info
+            header_content,                              # header markdown
+            gr.update(label=f"👤 {get_text('user_info.name_label')}", info=get_text("user_info.name_info"), placeholder=get_text("user_info.name_placeholder")),   # name updates
+            gr.update(label=f"🎂 {get_text('user_info.age_label')}", info=get_text("user_info.age_info")),    # age updates
+            gr.update(label=f"⚖️ {get_text('user_info.weight_label')}", info=get_text("user_info.weight_info")), # weight updates
+            gr.update(label=f"📏 {get_text('user_info.height_label')}", info=get_text("user_info.height_info")), # height updates
+            gr.update(label=get_text("user_info.dietary_prefs_label"), info=get_text("user_info.dietary_prefs_info")),  # dietary prefs updates
             gr.update(choices=quick_actions_choices, label=get_text("quick_actions.common_tasks"), info=get_text("quick_actions.common_tasks_info")),  # quick actions radio
             gr.update(label=get_text("quick_actions.nutrition_goals")),  # nutrition goals accordion
             gr.update(value=[{"role": "assistant", "content": get_text("chat.welcome_message")}]),  # chatbot
-            get_text("chat.message_placeholder"),        # message placeholder
+            gr.update(placeholder=get_text("chat.message_placeholder")),  # message placeholder
             "📤 " + get_text("chat.send_button"),        # send button
             "🗑️ " + get_text("chat.clear_button"),       # clear button
-            get_text("theme.toggle_dark")                # toggle dark button
+            get_text("theme.toggle_dark"),               # toggle dark button
+            gr.update(label=f"🔥 {get_text('nutrition_goals.calories_label')}"), # calories label
+            gr.update(label=f"🥩 {get_text('nutrition_goals.protein_label')}"),  # protein label
+            gr.update(label=f"💧 {get_text('nutrition_goals.water_label')}"),     # water label
+            quick_actions_title,                         # quick actions title markdown
+            nutrition_goals_info                         # nutrition goals info markdown
         )
 
     language.change(
         update_language,
         inputs=[language],
         outputs=[
-            name,                    # name textbox
-            name,                    # name info
-            name,                    # name placeholder
-            age,                     # age number
-            age,                     # age info
-            weight,                  # weight number
-            weight,                  # weight info
-            height,                  # height number
-            height,                  # height info
-            dietary_prefs,           # dietary prefs checkbox group
-            dietary_prefs,           # dietary prefs info
+            header_md,               # header markdown
+            name,                    # name component
+            age,                     # age component
+            weight,                  # weight component
+            height,                  # height component
+            dietary_prefs,           # dietary prefs component
             quick_actions,           # quick actions radio
             nutrition_goals_acc,     # nutrition goals accordion
             chatbot,                 # chatbot
             msg,                     # message textbox
             submit_btn,              # submit button
             clear_btn,               # clear button
-            toggle_dark              # toggle dark button
+            toggle_dark,             # toggle dark button
+            calories,                # calories component
+            protein,                 # protein component
+            water,                   # water component
+            quick_actions_md,        # quick actions title markdown
+            gr.Markdown()            # nutrition goals info markdown
         ]
     ).then(
         lambda lang: lang,

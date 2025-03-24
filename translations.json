@@ -8,6 +8,14 @@
             "dietary_recs": "Dietary recommendations",
             "eating_tips": "Healthy eating tips"
         },
+        "dietary_prefs": {
+            "vegetarian": "Vegetarian",
+            "vegan": "Vegan",
+            "gluten_free": "Gluten-Free",
+            "dairy_free": "Dairy-Free",
+            "keto": "Keto",
+            "paleo": "Paleo"
+        },
         "user_info": {
             "name_label": "Your Name",
             "name_info": "Let me personalize recommendations for you",
@@ -58,6 +66,11 @@
             "unsupported_file_type": "Sorry, this file type is not supported. Please upload an image or PDF file.",
             "file_processing_error": "Error processing file",
             "audio_processing_error": "Error processing audio"
+        },
+        "nutrition_goals": {
+            "calories_label": "Daily Calorie Target",
+            "protein_label": "Protein Goal (g)",
+            "water_label": "Water Intake Goal (L)"
         }
     },
     "fr": {
@@ -68,6 +81,14 @@
             "nutrition_info": "Informations nutritionnelles sur les aliments",
             "dietary_recs": "Recommandations alimentaires",
             "eating_tips": "Conseils pour une alimentation saine"
+        },
+        "dietary_prefs": {
+            "vegetarian": "Végétarien",
+            "vegan": "Végétalien",
+            "gluten_free": "Sans Gluten",
+            "dairy_free": "Sans Lactose",
+            "keto": "Céto",
+            "paleo": "Paléo"
         },
         "user_info": {
             "name_label": "Votre Nom",
@@ -119,6 +140,11 @@
             "unsupported_file_type": "Désolé, ce type de fichier n'est pas pris en charge. Veuillez télécharger une image ou un fichier PDF.",
             "file_processing_error": "Erreur lors du traitement du fichier",
             "audio_processing_error": "Erreur lors du traitement audio"
+        },
+        "nutrition_goals": {
+            "calories_label": "Objectif Calorique Quotidien",
+            "protein_label": "Objectif Protéines (g)",
+            "water_label": "Objectif Hydratation (L)"
         }
     }
 } 
