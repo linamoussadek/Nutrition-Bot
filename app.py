@@ -8,6 +8,17 @@ import gradio as gr
 from gradio.themes.utils.theme_dropdown import create_theme_dropdown
 from gradio.themes import Base
 import asyncio
+import tempfile
+from pathlib import Path
+import mimetypes
+import pytesseract
+from PIL import Image
+import fitz  # PyMuPDF
+import whisper
+import base64
+
+# Set Tesseract path for Windows
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Load environment variables
 load_dotenv()
@@ -47,17 +58,11 @@ class NutritionBot:
         7. Include specific food suggestions and meal ideas when relevant
         8. Explain the nutritional benefits of recommended foods
         9. Offer alternatives when suggesting foods that might not fit dietary preferences
-        10. When discussing calories or nutrients, provide context for why they're important
+        10. When discussing calories or nutrients, provide context for why they're important"""
+        
+        # Initialize the whisper model for voice transcription
+        self.audio_model = whisper.load_model("base")
 
-        Safety Guidelines:
-        - Acknowledge when a question requires professional medical advice
-        - Don't make extreme dietary recommendations
-        - Consider potential allergies and intolerances
-        - Promote balanced, sustainable eating habits
-        - Discourage harmful eating behaviors or extreme diets
-
-        Remember to maintain a supportive and encouraging tone while providing accurate, science-based information."""
-    
     def update_user_data(self, name: str, age: int, weight: float, height: float, dietary_prefs: List[str], 
                         calories: int = None, protein: int = None, water: float = None):
         self.user_data = {
@@ -351,9 +356,52 @@ css = """
     padding: 24px;
     border-radius: 12px;
     background: rgba(76, 175, 80, 0.1);
+    position: relative;
 }
-.nutrition-header h1 { 
-    margin-bottom: 16px;
+.controls-column {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 120px;
+    z-index: 1000;
+}
+.controls-column .gr-button {
+    margin: 0;
+    padding: 4px 8px;
+    height: 32px;
+    min-width: auto;
+    cursor: pointer;
+}
+.controls-column .gr-dropdown {
+    margin: 0;
+    background: white;
+}
+.dark .controls-column .gr-dropdown {
+    background: #243024;
+}
+.controls-column select {
+    cursor: pointer;
+}
+.header-row {
+    margin: 8px 0;
+    padding: 4px 8px;
+    align-items: center;
+}
+.header-row .gr-button {
+    margin: 0;
+    padding: 4px 8px;
+    height: 50px;
+    min-width: auto;
+}
+.header-row .gr-dropdown {
+    margin: 0;
+}
+.header-row .gr-form {
+    margin: 0;
+    gap: 0;
 }
 .container {
     max-width: 1200px;
@@ -396,18 +444,17 @@ css = """
 
 with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
     with gr.Row(equal_height=True):
-        with gr.Column(scale=1):
-            toggle_dark = gr.Button(get_text("theme.toggle_dark"), size="sm")
-        with gr.Column(scale=1):
-            language = gr.Dropdown(
-                choices=["en", "fr"],
-                value="en",
-                label="Language",
-                info="Select your preferred language"
-            )
-            lang_state = gr.State("en")  # Add language state
-    with gr.Row(equal_height=True):
         with gr.Column(scale=10, elem_classes="nutrition-header"):
+            with gr.Column(elem_classes="controls-column"):
+                language = gr.Dropdown(
+                    choices=["en", "fr"],
+                    value="en",
+                    label="Language",
+                    container=False
+                )
+                lang_state = gr.State("en")
+                toggle_dark = gr.Button(get_text("theme.toggle_dark"), size="sm")
+            
             header_md = gr.Markdown(
                 f"""
                 # 🥗 {get_text("title")}
@@ -599,9 +646,7 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
 
 if __name__ == "__main__":
     demo.queue(max_size=20).launch(
-        server_name="0.0.0.0",
-        share=False,
+        server_name="127.0.0.1",
         server_port=7860,
-        show_error=True,
-        debug=False
+        show_error=True
     )

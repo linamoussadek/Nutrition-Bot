@@ -45,7 +45,20 @@
         "theme": {
             "toggle_dark": "Toggle Dark Mode"
         },
-        "profile_update": "Profile updated for {}"
+        "profile_update": "Profile updated for {}",
+        "input": {
+            "file_upload": "Upload Food Label or Document",
+            "voice_message": "Record Voice Message"
+        },
+        "processing": {
+            "analyzing_file": "Analyzing your file",
+            "transcribing_audio": "Transcribing your message"
+        },
+        "errors": {
+            "unsupported_file_type": "Sorry, this file type is not supported. Please upload an image or PDF file.",
+            "file_processing_error": "Error processing file",
+            "audio_processing_error": "Error processing audio"
+        }
     },
     "fr": {
         "title": "Assistant en Nutrition",
@@ -93,6 +106,19 @@
         "theme": {
             "toggle_dark": "Basculer le Mode Sombre"
         },
-        "profile_update": "Profil mis à jour pour {}"
+        "profile_update": "Profil mis à jour pour {}",
+        "input": {
+            "file_upload": "Télécharger une Étiquette ou un Document",
+            "voice_message": "Enregistrer un Message Vocal"
+        },
+        "processing": {
+            "analyzing_file": "Analyse de votre fichier",
+            "transcribing_audio": "Transcription de votre message"
+        },
+        "errors": {
+            "unsupported_file_type": "Désolé, ce type de fichier n'est pas pris en charge. Veuillez télécharger une image ou un fichier PDF.",
+            "file_processing_error": "Erreur lors du traitement du fichier",
+            "audio_processing_error": "Erreur lors du traitement audio"
+        }
     }
 } 
