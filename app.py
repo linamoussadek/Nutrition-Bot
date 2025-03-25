@@ -681,7 +681,8 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
 
 if __name__ == "__main__":
     demo.queue(max_size=20).launch(
-        server_name="127.0.0.1",
+        share=False,  # Don't create a public link
+        server_name="0.0.0.0",  # Listen on all network interfaces
         server_port=7860,
         show_error=True
     )

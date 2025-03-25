@@ -21,7 +21,7 @@
             "name_info": "Let me personalize recommendations for you",
             "name_placeholder": "John Smith",
             "age_label": "Age",
-            "age_info": "Let me adjust recommendations based on your age group",
+            "age_info": "Let me adjust recommendations based on your age",
             "weight_label": "Weight (kg)",
             "weight_info": "Help me calculate your nutritional needs accurately",
             "height_label": "Height (cm)",
