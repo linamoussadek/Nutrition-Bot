@@ -7,18 +7,6 @@ import gradio as gr
 from gradio.themes.utils.theme_dropdown import create_theme_dropdown
 from gradio.themes import Base
 import asyncio
-import time 
-import tempfile
-from pathlib import Path
-import mimetypes
-import pytesseract
-from PIL import Image
-import fitz  # PyMuPDF
-import whisper
-import base64
-
-# Set Tesseract path for Windows
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Load environment variables
 load_dotenv()
