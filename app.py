@@ -545,7 +545,7 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
                 )
                 nutrition_goals_acc = gr.Accordion(get_text("quick_actions.nutrition_goals"), open=False)
                 with nutrition_goals_acc:
-                    gr.Markdown(get_text("quick_actions.nutrition_goals_info"))
+                    nutrition_goals_info_md = gr.Markdown(get_text("quick_actions.nutrition_goals_info"))
                     calories = gr.Number(label=f"🔥 {get_text('nutrition_goals.calories_label')}", value=2000)
                     protein = gr.Number(label=f"🥩 {get_text('nutrition_goals.protein_label')}", value=150)
                     water = gr.Number(label=f"💧 {get_text('nutrition_goals.water_label')}", value=2.5)
@@ -583,11 +583,11 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
 
     def handle_quick_action(action: str) -> str:
         action_prompts = {
-            "🍽️ " + get_text("quick_actions.actions.meal_suggestions"): "Can you suggest some healthy meals that fit my dietary preferences and calorie goals?",
-            "📊 " + get_text("quick_actions.actions.daily_calories"): "Based on my age, weight, and activity level, how many calories should I consume daily?",
-            "🔍 " + get_text("quick_actions.actions.food_nutrition"): "Can you tell me about the nutritional content of common foods in my diet?",
-            "🏃‍♂️ " + get_text("quick_actions.actions.exercise_tips"): "What types of exercise would complement my nutrition goals?",
-            "📅 " + get_text("quick_actions.actions.weekly_menu"): "Can you help me create a weekly meal plan that meets my nutritional goals?"
+            "🍽️ " + get_text("quick_actions.actions.meal_suggestions"): get_text("quick_actions.prompts.meal_suggestions"),
+            "📊 " + get_text("quick_actions.actions.daily_calories"): get_text("quick_actions.prompts.daily_calories"),
+            "🔍 " + get_text("quick_actions.actions.food_nutrition"): get_text("quick_actions.prompts.food_nutrition"),
+            "🏃‍♂️ " + get_text("quick_actions.actions.exercise_tips"): get_text("quick_actions.prompts.exercise_tips"),
+            "📅 " + get_text("quick_actions.actions.weekly_menu"): get_text("quick_actions.prompts.weekly_menu")
         }
         return action_prompts.get(action, "")
 
@@ -628,9 +628,6 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
         # Create quick actions title
         quick_actions_title = f"### ⚡ {get_text('quick_actions.title')}"
 
-        # Create nutrition goals info
-        nutrition_goals_info = get_text("quick_actions.nutrition_goals_info")
-
         return (
             header_content,                              # header markdown
             gr.update(label=f"👤 {get_text('user_info.name_label')}", info=get_text("user_info.name_info"), placeholder=get_text("user_info.name_placeholder")),   # name updates
@@ -649,7 +646,7 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
             gr.update(label=f"🥩 {get_text('nutrition_goals.protein_label')}"),  # protein label
             gr.update(label=f"💧 {get_text('nutrition_goals.water_label')}"),     # water label
             quick_actions_title,                         # quick actions title markdown
-            nutrition_goals_info                         # nutrition goals info markdown
+            get_text("quick_actions.nutrition_goals_info")  # nutrition goals info markdown
         )
 
     language.change(
@@ -673,7 +670,7 @@ with gr.Blocks(theme=AmethystTheme(), css=css) as demo:
             protein,                 # protein component
             water,                   # water component
             quick_actions_md,        # quick actions title markdown
-            gr.Markdown()            # nutrition goals info markdown
+            nutrition_goals_info_md  # nutrition goals info markdown
         ]
     ).then(
         lambda lang: lang,

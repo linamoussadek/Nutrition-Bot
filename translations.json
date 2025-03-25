@@ -41,6 +41,13 @@
                 "food_nutrition": "Check food nutrition facts",
                 "exercise_tips": "Get exercise tips",
                 "weekly_menu": "Plan weekly menu"
+            },
+            "prompts": {
+                "meal_suggestions": "Can you suggest some healthy meals that fit my dietary preferences and calorie goals?",
+                "daily_calories": "Based on my age, weight, and activity level, how many calories should I consume daily?",
+                "food_nutrition": "Can you tell me about the nutritional content of common foods in my diet?",
+                "exercise_tips": "What types of exercise would complement my nutrition goals?",
+                "weekly_menu": "Can you help me create a weekly meal plan that meets my nutritional goals?"
             }
         },
         "chat": {
@@ -115,6 +122,13 @@
                 "food_nutrition": "Vérifier les informations nutritionnelles",
                 "exercise_tips": "Obtenir des conseils d'exercice",
                 "weekly_menu": "Planifier le menu hebdomadaire"
+            },
+            "prompts": {
+                "meal_suggestions": "Pouvez-vous me suggérer des repas sains qui correspondent à mes préférences alimentaires et à mes objectifs caloriques ?",
+                "daily_calories": "En fonction de mon âge, de mon poids et de mon niveau d'activité, combien de calories devrais-je consommer quotidiennement ?",
+                "food_nutrition": "Pouvez-vous me parler du contenu nutritionnel des aliments courants dans mon régime alimentaire ?",
+                "exercise_tips": "Quels types d'exercices compléteraient mes objectifs nutritionnels ?",
+                "weekly_menu": "Pouvez-vous m'aider à créer un plan de repas hebdomadaire qui répond à mes objectifs nutritionnels ?"
             }
         },
         "chat": {
@@ -125,7 +139,7 @@
             "welcome_message": "Bonjour ! Je suis votre assistant nutritionnel. Comment puis-je vous aider aujourd'hui ?"
         },
         "theme": {
-            "toggle_dark": "Basculer le Mode Sombre"
+            "toggle_dark": "Basculer au Mode Sombre"
         },
         "profile_update": "Profil mis à jour pour {}",
         "input": {
