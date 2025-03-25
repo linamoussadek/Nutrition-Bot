@@ -1,6 +1,6 @@
 {
     "en": {
-        "title": "Nutrition Assistant",
+        "title": "NutriCoach",
         "welcome": "Welcome to your personal nutrition assistant! I can help you with:",
         "features": {
             "meal_planning": "Meal planning and recipe suggestions",
@@ -81,7 +81,7 @@
         }
     },
     "fr": {
-        "title": "Assistant en Nutrition",
+        "title": "NutriCoach",
         "welcome": "Bienvenue dans votre assistant nutritionnel personnel ! Je peux vous aider avec :",
         "features": {
             "meal_planning": "Planification des repas et suggestions de recettes",

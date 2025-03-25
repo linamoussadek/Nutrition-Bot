@@ -46,8 +46,8 @@ class NutritionBot:
     def __init__(self):
         self.user_data = {}
         self.conversation_history = []
-        self.system_prompt = """You are a professional nutrition assistant with expertise in dietary planning and nutritional science. 
-        Your role is to provide personalized, evidence-based nutrition advice while adhering to these guidelines:
+        self.system_prompt = """You are NutriCoach, a professional and engaging nutrition coach with expertise in dietary planning and nutritional science. 
+        Your role is to provide personalized, evidence-based nutrition advice while following these guidelines:
 
         1. ONLY answer questions related to nutrition, diet, food, and healthy eating habits
         2. If asked about non-nutrition topics, politely redirect the conversation to nutrition-related topics
@@ -58,7 +58,14 @@ class NutritionBot:
         7. Include specific food suggestions and meal ideas when relevant
         8. Explain the nutritional benefits of recommended foods
         9. Offer alternatives when suggesting foods that might not fit dietary preferences
-        10. When discussing calories or nutrients, provide context for why they're important"""
+        10. When discussing calories or nutrients, provide context for why they're important
+        11. ALWAYS end your responses with a relevant follow-up question to keep the conversation engaging
+        12. Use a friendly, encouraging tone and acknowledge the user's interests and concerns
+        13. When appropriate, break down complex advice into smaller, manageable steps
+        14. Celebrate small wins and encourage sustainable changes
+        15. If the user shares a goal or challenge, ask clarifying questions to provide better-tailored advice
+
+        Remember to maintain a supportive and motivating tone throughout the conversation."""
         
         # Initialize the whisper model for voice transcription
         self.audio_model = whisper.load_model("base")
@@ -245,7 +252,8 @@ class NutritionBot:
 
     async def get_response(self, message: str) -> str:
         if not self.is_nutrition_related(message):
-            return "I'm your nutrition assistant, so I can only help with questions about food, diet, and nutrition. Could you please ask me something related to nutrition or healthy eating?"
+            return "I'm NutriCoach, your personal nutrition coach, so I can only help with questions about food, diet, and nutrition. Could you tell me about your nutrition-related goals or concerns?"
+        
         greeting_parts = []
         if self.user_data.get('height') or self.user_data.get('weight') or self.user_data.get('age'):
             greeting_parts.append("I see that")
@@ -259,15 +267,23 @@ class NutritionBot:
             greeting_parts.append(", ".join(info_parts))
         if self.user_data.get('dietary_preferences'):
             greeting_parts.append(f"and you follow a {', '.join(self.user_data['dietary_preferences'])} diet")
-        greeting = " ".join(greeting_parts) + ".\n\n"
+        greeting = " ".join(greeting_parts) + ".\n\n" if greeting_parts else ""
+
         self.conversation_history.append({"role": "user", "content": message})
+        
+        # Add a reminder to include follow-up questions
+        enhanced_system_prompt = self.system_prompt + "\n\nRemember to end this response with an engaging follow-up question that encourages the user to share more details or explore related nutrition topics."
+        
         max_retries = 3
         retry_delay = 1
         for attempt in range(max_retries):
             try:
                 response = openai.chat.completions.create(
                     model="gpt-3.5-turbo",
-                    messages=self.conversation_history,
+                    messages=[
+                        {"role": "system", "content": enhanced_system_prompt},
+                        *self.conversation_history[-10:]  # Keep last 10 messages for context
+                    ],
                     temperature=0.7,
                     max_tokens=500,
                     top_p=0.9,
@@ -282,14 +298,14 @@ class NutritionBot:
                 if attempt < max_retries - 1:
                     await asyncio.sleep(retry_delay * (attempt + 1))
                     continue
-                return "I'm experiencing high demand right now. Please try again in a few moments."
+                return "I'm experiencing high demand right now. Please try again in a few moments. In the meantime, would you like to tell me more about your nutrition goals?"
             except openai.APIError as e:
                 if attempt < max_retries - 1:
                     await asyncio.sleep(retry_delay * (attempt + 1))
                     continue
-                return f"I apologize, but I encountered an API error. Please try again later. Error: {str(e)}"
+                return f"I apologize, but I encountered an API error. Please try again later. In the meantime, what aspects of nutrition interest you most? Error: {str(e)}"
             except Exception as e:
-                return f"I apologize, but I encountered an unexpected error. Please try again. Error: {str(e)}"
+                return f"I apologize, but I encountered an unexpected error. While we wait, could you tell me about your dietary preferences? Error: {str(e)}"
 
 nutrition_bot = NutritionBot()
 
