@@ -1,4 +1,3 @@
-import time 
 import os
 import json
 from dotenv import load_dotenv
@@ -8,6 +7,7 @@ import gradio as gr
 from gradio.themes.utils.theme_dropdown import create_theme_dropdown
 from gradio.themes import Base
 import asyncio
+import time 
 import tempfile
 from pathlib import Path
 import mimetypes
@@ -66,9 +66,6 @@ class NutritionBot:
         15. If the user shares a goal or challenge, ask clarifying questions to provide better-tailored advice
 
         Remember to maintain a supportive and motivating tone throughout the conversation."""
-        
-        # Initialize the whisper model for voice transcription
-        self.audio_model = whisper.load_model("base")
 
     def update_user_data(self, name: str, age: int, weight: float, height: float, dietary_prefs: List[str], 
                         calories: int = None, protein: int = None, water: float = None):
